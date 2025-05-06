@@ -4,11 +4,7 @@
  */
 package com.mycompany.pruebavehiculo;
 
-/**
- *
- * @author lcord
- */
-
+import javax.swing.*;
 import com.mycompany.pruebavehiculo.Clases.Propietario;
 import com.mycompany.pruebavehiculo.Clases.Vehiculo;
 import com.mycompany.pruebavehiculo.Clases.Turno;
@@ -17,9 +13,26 @@ import com.mycompany.pruebavehiculo.Persistencia.PropietarioJpaController;
 import com.mycompany.pruebavehiculo.Persistencia.VehiculoJpaController;
 import com.mycompany.pruebavehiculo.Persistencia.TurnoJpaController;
 
-import javax.swing.*;
+/**
+ *
+ * @author lcord
+ */
+public class Inicio extends JFrame {
 
-public class Inicio extends javax.swing.JFrame {
+    // Campos para los datos de Vehículo y Turno
+    private JTextField txtCedula = new JTextField();
+    private JTextField txtNombre = new JTextField();
+    private JTextField txtApellido = new JTextField();
+    private JTextField txtPlaca = new JTextField();
+    private JTextField txtMarca = new JTextField();
+    private JTextField txtEstado = new JTextField();
+    private JButton btnGuardarVehiculo = new JButton("Guardar Vehículo");
+
+    private JTextField txtPlacaTurno = new JTextField();
+    private JTextField txtAnden = new JTextField();
+    private JTextField txtDia = new JTextField();
+    private JTextField txtHora = new JTextField();
+    private JButton btnRegistrarTurno = new JButton("Registrar Turno");
 
     public Inicio() {
         initComponents();
@@ -35,7 +48,6 @@ public class Inicio extends javax.swing.JFrame {
             p.setCedula(cedula);
             p.setNombre(txtNombre.getText());
             p.setApellido(txtApellido.getText());
-
             new PropietarioJpaController().create(p);
         }
 
@@ -60,39 +72,28 @@ public class Inicio extends javax.swing.JFrame {
         }
 
         int dia = Integer.parseInt(txtDia.getText());
+        int anden = Integer.parseInt(txtAnden.getText());
+        int hora = Integer.parseInt(txtHora.getText());
 
         if (logica.tieneTurnoEnDia(v, dia)) {
             JOptionPane.showMessageDialog(this, "El vehículo ya tiene un turno en ese día.");
-        } else {
-            Turno t = new Turno();
-            t.setAnden(Integer.parseInt(txtAnden.getText()));
-            t.setDia(dia);
-            t.setHora(Integer.parseInt(txtHora.getText()));
-            t.setVehiculo(v);
-
-            new TurnoJpaController().create(t);
-            JOptionPane.showMessageDialog(this, "Turno registrado.");
+            return;
         }
+
+        if (logica.existeTurnoEnAndenHoraDia(anden, hora, dia)) {
+            JOptionPane.showMessageDialog(this, "Ya existe un turno en ese andén a esa hora y día.");
+            return;
+        }
+
+        Turno t = new Turno();
+        t.setAnden(anden);
+        t.setDia(dia);
+        t.setHora(hora);
+        t.setVehiculo(v);
+
+        logica.registrarTurno(t);
+        JOptionPane.showMessageDialog(this, "Turno registrado.");
     }
-
-    public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> new Inicio().setVisible(true));
-    }
-
-    // Variables - simplificadas para el ejemplo
-    private JTextField txtCedula = new JTextField();
-    private JTextField txtNombre = new JTextField();
-    private JTextField txtApellido = new JTextField();
-    private JTextField txtPlaca = new JTextField();
-    private JTextField txtMarca = new JTextField();
-    private JTextField txtEstado = new JTextField();
-    private JButton btnGuardarVehiculo = new JButton("Guardar Vehículo");
-
-    private JTextField txtPlacaTurno = new JTextField();
-    private JTextField txtAnden = new JTextField();
-    private JTextField txtDia = new JTextField();
-    private JTextField txtHora = new JTextField();
-    private JButton btnRegistrarTurno = new JButton("Registrar Turno");
 
     private void initComponents() {
         setTitle("Gestión de Turnos Vehiculares");
@@ -128,5 +129,9 @@ public class Inicio extends javax.swing.JFrame {
         field.setBounds(x + 100, y, 150, 20);
         add(jLabel);
         add(field);
+    }
+
+    public static void main(String[] args) {
+        java.awt.EventQueue.invokeLater(() -> new Inicio().setVisible(true));
     }
 }
